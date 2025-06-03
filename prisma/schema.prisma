@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id     String  @id @default(uuid())
+  name   String
+  email  String
+  token  String
+  valido Boolean @default(true)
+
+  created_at       DateTime          @default(now())
+  updated_at       DateTime
+  user_permissions user_permission[]
+  user_role        user_role[]
+}
+
+model permission {
+  id   String @id @default(uuid())
+  name String
+
+  description      String
+  created_at       DateTime          @default(now())
+  updated_at       DateTime
+  permission_role  permission_role[]
+  user_permissions user_permission[]
+}
+
+model role {
+  id               String            @id @default(uuid())
+  name             String
+  description      String
+  created_at       DateTime          @default(now())
+  updated_at       DateTime
+  permissions_role permission_role[]
+
+  user_role user_role[]
+}
+
+model permission_role {
+  id String @id @default(uuid())
+
+  fk_role String
+  roles   role   @relation(fields: [fk_role], references: [id])
+
+  fk_permissions String
+  permission     permission @relation(fields: [fk_permissions], references: [id])
+}
+
+model user_permission {
+  id String @id @default(uuid())
+
+  fk_user String
+  user    user   @relation(fields: [fk_user], references: [id])
+
+  fk_permissions String
+  permissions    permission @relation(fields: [fk_permissions], references: [id])
+}
+
+model user_role {
+  id String @id @default(uuid())
+
+  fk_user String
+  user    user   @relation(fields: [fk_user], references: [id])
+
+  fk_role String
+  role    role   @relation(fields: [fk_role], references: [id])
+}
